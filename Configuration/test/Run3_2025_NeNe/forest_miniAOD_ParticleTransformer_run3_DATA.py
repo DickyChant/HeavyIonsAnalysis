@@ -99,6 +99,8 @@ process.load('HeavyIonsAnalysis.EGMAnalysis.ggHiNtuplizer_cfi')
 process.load('HeavyIonsAnalysis.EGMAnalysis.hiElectrons_cfi')
 process.load('HeavyIonsAnalysis.EGMAnalysis.correctedPatElectronProducer_cfi')
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.hiFJSoftKillerAnalyzer_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.hiFlowRhoAnalyzer_cff')
 process.load('HeavyIonsAnalysis.EGMAnalysis.correctedPatPhotonProducer_cfi')
 process.correctedPhotons = process.correctedPatPhotonProducer.clone(src = "slimmedPhotons", centrality = "centralityBin:PFhf", minPt = 15)
 process.correctedPhotons.correctionFile = "HeavyIonsAnalysis/EGMAnalysis/data/Run3_2025_pO/SuperClusterSS_pO2025_DATA.dat"
@@ -108,8 +110,8 @@ process.correctedElectrons.correctionFile = "HeavyIonsAnalysis/EGMAnalysis/data/
 process.hiElectrons.centrality = "centralityBin2024PbPb:HFtowers"
 process.hiElectrons.electrons = "correctedElectrons"
 process.hiElectrons.file_idModel = "HeavyIonsAnalysis/EGMAnalysis/data/Run3_2024_PbPb/eleid_BDT.ubj"
-process.hiElectrons.file_isoModel = "HeavyIonsAnalysis/EGMAnalysis/data/Run3_2024_PbPb/eleiso_BDT.ubj"
-process.hiElectrons.file_corr = "HeavyIonsAnalysis/Configuration/data/lepton_spectra_train_weights_Run3_2024_PbPb.json.gz"
+process.hiElectrons.file_isoModel = "HeavyIonsAnalysis/EGMAnalysis/data/Run3_PbPb/eleiso_BDT.ubj"
+process.hiElectrons.file_corr = "HeavyIonsAnalysis/EGMAnalysis/data/Run3_2024_PbPb/ele_spectra_train_weights.json.gz"
 process.hiElectrons.era = "Run3_2024_PbPb"
 process.ggHiNtuplizer.muonSrc = "slimmedMuons"
 process.ggHiNtuplizer.useValMapIso = False
@@ -148,6 +150,8 @@ process.forest = cms.Path(
     process.unpackedTracksAndVertices +
     process.particleFlowAnalyser +
     process.egammaSequence +
+    process.hiFJSoftKillerAnalyzer +
+    process.rhoFlowDataSequence +
     process.metFilters +
     process.zdcSequencePbPb
     )
@@ -165,7 +169,7 @@ doHIJetID = True             # Fill jet ID and composition information branches
 doWTARecluster = True        # Add jet phi and eta for WTA axis
 
 # add candidate tagging
-for jetR, doFlow in zip([0.4], [False]):
+for jetR, doFlow in zip([0.3], [False]):
     R = str(int(jetR*10))
     from HeavyIonsAnalysis.JetAnalysis.deepNtupleSettings_cff import candidateBtaggingMiniAOD
     candidateBtaggingMiniAOD(process, isMC = False, jetPtMin = jetPtMin, jetR = jetR, jetCorrLevels = ['L2Relative', 'L2L3Residual'], doFlow = doFlow, addNegTag = True, era = "Run3_2025_PbPb")
@@ -188,6 +192,8 @@ for jetR, doFlow in zip([0.4], [False]):
     getattr(process,f'ak{jL}PFJetAnalyzer').pfParticleTransformerAK4JetTags = cms.untracked.string(f"pfParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
     getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
     getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTagsAlt = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourAlt")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTagsAlt = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourAlt")
     process.forest += getattr(process,f'ak{jL}PFJetAnalyzer')
 
 
