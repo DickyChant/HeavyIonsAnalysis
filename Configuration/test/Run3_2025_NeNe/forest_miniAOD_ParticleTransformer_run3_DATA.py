@@ -215,22 +215,18 @@ process.goodElectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("slimmedElectrons::@skipCurrentProcess"),
     cut = cms.string("pt >= 15.0")
 )
-process.goodPhotons = cms.EDFilter("PATPhotonSelector",
-    src = cms.InputTag("slimmedPhotons::@skipCurrentProcess"),
-    cut = cms.string("pt >= 25.0")
-)
 process.oneLepton = cms.EDFilter("PATCountFilter",
     electronSource = cms.InputTag("goodElectrons"),
     muonSource     = cms.InputTag("goodMuons"),
     tauSource      = cms.InputTag(""),
-    photonSource   = cms.untracked.InputTag("goodPhotons"),
     countElectrons = cms.bool(True),
     countMuons     = cms.bool(True),
     countTaus      = cms.bool(False),
     minNumber = cms.uint32(1),
     maxNumber = cms.uint32(1000000),
 )
-process.leptonSelection = cms.Sequence(process.goodElectrons * process.goodMuons * process.goodPhotons * process.oneLepton)
+# lepton-only skim (no photon leg): >=1 muon (pT>=15, CutBasedIdLoose) or electron (pT>=15)
+process.leptonSelection = cms.Sequence(process.goodElectrons * process.goodMuons * process.oneLepton)
 process.filterSequence = cms.Sequence(
     process.primaryVertexFilter *
     process.leptonSelection
