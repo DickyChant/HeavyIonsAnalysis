@@ -98,7 +98,9 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
                                     "pfUnifiedParticleTransformerAK4JetTags",
                                     "pfNegativeUnifiedParticleTransformerAK4JetTags",
                                     "pfUnifiedParticleTransformerAK4JetTagsAlt",
-                                    "pfNegativeUnifiedParticleTransformerAK4JetTagsAlt"}) {
+                                    "pfNegativeUnifiedParticleTransformerAK4JetTagsAlt",
+                                    "pfUnifiedParticleTransformerAK4JetTagsPP",
+                                    "pfNegativeUnifiedParticleTransformerAK4JetTagsPP"}) {
       const auto& tag = iConfig.getUntrackedParameter<string>(label, "");
       if (tag.empty())
         continue;
@@ -125,6 +127,8 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
             jetTaggers_["unifiedParticleTransformer"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
           else if (label == "pfUnifiedParticleTransformerAK4JetTagsAlt")
             jetTaggers_["unifiedParticleTransformerAlt"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
+          else if (label == "pfUnifiedParticleTransformerAK4JetTagsPP")
+            jetTaggers_["unifiedParticleTransformerPP"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
         }
       else if (label.rfind("pfNegativeUnifiedParticleTransformerAK4JetTags", 0) == 0)
         for (const auto& cat : {"probb",
@@ -149,6 +153,8 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
             jetTaggers_["negUnifiedParticleTransformer"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
           else if (label == "pfNegativeUnifiedParticleTransformerAK4JetTagsAlt")
             jetTaggers_["negUnifiedParticleTransformerAlt"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
+          else if (label == "pfNegativeUnifiedParticleTransformerAK4JetTagsPP")
+            jetTaggers_["negUnifiedParticleTransformerPP"].emplace(cat, consumes<JetTagCollection>(tag + ":" + cat));
         }
     }
   }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def candidateBtaggingMiniAOD(process, isMC = True, jetPtMin = 15, jetR = 0.4, jetCorrLevels = ['L2Relative', 'L3Absolute'], doFlow = False, addNegTag = True, era = '', isSkim = False):
+def candidateBtaggingMiniAOD(process, isMC = True, jetPtMin = 15, jetR = 0.4, jetCorrLevels = ['L2Relative', 'L3Absolute'], doFlow = False, addNegTag = True, era = '', isSkim = False, addPPUParT = False):
     # DeepNtuple settings
     R = str(int(jetR*10))
     jetCorrectionsAK = ('AK4PF', jetCorrLevels, 'None')
@@ -324,6 +324,19 @@ def candidateBtaggingMiniAOD(process, isMC = True, jetPtMin = 15, jetR = 0.4, je
             model_path = f'HeavyIonsAnalysis/Configuration/data/UParTAK{R}_PbPb_2023.onnx')
         )
         process.patAlgosToolsTask.add(getattr(process,f'{tag}{label}Alt'))
+
+    #Add the standard pp UParT model (UParTAK4 PUPPI V01, identical to the UParTAK4_v2.onnx used in the pO/ppRef setups).
+    #It runs on its own tag infos with the release (pp-training) candidate ordering instead of the HI pT ordering.
+    if addPPUParT:
+        for flip in [''] + (['Negative'] if addNegTag else []):
+            tagInfo = f'pf{flip}UnifiedParticleTransformerAK4TagInfosAK{jL}DeepFlavour'
+            jetTag = f'pf{flip}UnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavour'
+            setattr(process, f'{tagInfo}PP', getattr(process, tagInfo).clone(sort_cand_by_pt = False, fix_lt_sorting = True))
+            setattr(process, f'{jetTag}PP', getattr(process, jetTag).clone(
+                src = f'{tagInfo}PP',
+                model_path = 'RecoBTag/Combined/data/UParTAK4/PUPPI/V01/modelfile/model.onnx'))
+            process.patAlgosToolsTask.add(getattr(process, f'{tagInfo}PP'))
+            process.patAlgosToolsTask.add(getattr(process, f'{jetTag}PP'))
 
     # Associate to forest sequence
     if isMC:

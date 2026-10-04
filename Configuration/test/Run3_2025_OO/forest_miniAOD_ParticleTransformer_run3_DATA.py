@@ -169,7 +169,7 @@ doWTARecluster = True        # Add jet phi and eta for WTA axis
 for jetR, doFlow in zip([0.3], [False]):
     R = str(int(jetR*10))
     from HeavyIonsAnalysis.JetAnalysis.deepNtupleSettings_cff import candidateBtaggingMiniAOD
-    candidateBtaggingMiniAOD(process, isMC = False, jetPtMin = jetPtMin, jetR = jetR, jetCorrLevels = ['L2Relative', 'L2L3Residual'], doFlow = doFlow, addNegTag = True, era = "Run3_2025_PbPb")
+    candidateBtaggingMiniAOD(process, isMC = False, jetPtMin = jetPtMin, jetR = jetR, jetCorrLevels = ['L2Relative', 'L2L3Residual'], doFlow = doFlow, addNegTag = True, era = "Run3_2025_PbPb", addPPUParT = True)
 
     # setup jet analyzer
     jL = f"Cs{R}Flow" if doFlow else f"Cs{R}"
@@ -191,6 +191,8 @@ for jetR, doFlow in zip([0.3], [False]):
     getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
     getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTagsAlt = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourAlt")
     getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTagsAlt = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourAlt")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTagsPP = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourPP")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTagsPP = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavourPP")
     process.forest += getattr(process,f'ak{jL}PFJetAnalyzer')
 
 
