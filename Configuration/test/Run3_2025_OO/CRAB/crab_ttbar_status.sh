@@ -9,7 +9,9 @@ dir=$(dirname "$(readlink -f "$0")")/crab_projects/$sys/$tag
 for d in "$dir"/crab_*; do
   echo "=== $(basename "$d")"
   crab status -d "$d" --proxy="$proxy" 2>&1 | grep -E "Status on the scheduler|^Jobs status|^\s+(finished|running|idle|failed|transferring|transferred|unsubmitted|cooloff)\s" | sed 's/^/  /'
-  if [ "$action" == "--resubmit" ]; then
-    crab resubmit -d "$d" --proxy="$proxy" --maxjobruntime=1440 --siteblacklist=T3_US_FNALLPC 2>&1 | tail -1 | sed 's/^/  /'
-  fi
 done
+# The `crab resubmit` CLI re-delegates MyProxy from ~/.globus and fails once the user certificate expires.
+# Resubmit through the python API instead.
+if [ "$action" == "--resubmit" ]; then
+  X509_USER_PROXY=$proxy python3 "$(dirname "$(readlink -f "$0")")/crab_ttbar_resubmit.py" --system "$sys" --tag "$tag" | grep "^\["
+fi

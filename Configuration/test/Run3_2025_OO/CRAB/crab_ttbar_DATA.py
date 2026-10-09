@@ -73,7 +73,7 @@ def main():
     p.add_argument("--tag", required=True, help="production tag, e.g. 2026_10_05")
     p.add_argument("--pds", default="0-59", help="IonPhysics PDs, e.g. 0-59 or 0,3,7-9")
     p.add_argument("--units", type=int, default=250, help="lumi sections per job (~9M OO events, ~2 h at 0.6 ms/evt)")
-    p.add_argument("--memory", type=int, default=2500)
+    p.add_argument("--memory", type=int, default=3000)  # pilot peaked at 2282 MB on the grid
     p.add_argument("--runtime", type=int, default=720, help="maxJobRuntimeMin")
     p.add_argument("--ignore-locality", action="store_true")
     p.add_argument("--workarea", default=os.path.join(HERE, "crab_projects"))
