@@ -59,7 +59,7 @@ def make_config(args, pd):
     cfg.Data.outLFNDirBase = args.lfn
     cfg.Data.ignoreLocality = args.ignore_locality
     cfg.Site.storageSite = "T2_CH_CERN"
-    cfg.Site.blacklist = ["T3_US_FNALLPC"]  # wall-clock kills seen in the alpha_pO campaign
+    cfg.Site.blacklist = args.siteblacklist.split(",")
     if args.ignore_locality:  # stahlleiton's fallback for blocks missing at their nominal site
         cfg.Site.ignoreGlobalBlacklist = True
         cfg.Site.whitelist = ["T1_US_*", "T1_FR_*", "T2_US_MIT", "T2_FR_*", "T2_ES_*", "T2_UK_*", "T2_US_Vanderbilt", "T2_CH_CERN"]
@@ -76,6 +76,9 @@ def main():
     p.add_argument("--memory", type=int, default=3000)  # pilot peaked at 2282 MB on the grid
     p.add_argument("--runtime", type=int, default=720, help="maxJobRuntimeMin")
     p.add_argument("--ignore-locality", action="store_true")
+    # T3_US_FNALLPC: wall-clock kills seen in the alpha_pO campaign. For a recovery task also add sites whose
+    # stage-out keeps failing, e.g. T1_DE_KIT,T2_ES_CIEMAT,T2_UK_London_IC (FTS curl error 56, 2026-10-10)
+    p.add_argument("--siteblacklist", default="T3_US_FNALLPC", help="comma-separated site blacklist")
     p.add_argument("--workarea", default=os.path.join(HERE, "crab_projects"))
     p.add_argument("--proxy", default=os.environ.get("X509_USER_PROXY", ""))
     p.add_argument("--submit", action="store_true", help="actually submit (default: print configs only)")

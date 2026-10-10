@@ -43,6 +43,8 @@ def main():
         name = os.path.basename(d)
         if pds and not any(x in name for x in pds):
             continue
+        if "FAILED_" in name:  # task directories set aside after a fresh resubmission
+            continue
         try:
             st = crabCommand("status", dir=d, proxy=args.proxy)
         except Exception as e:
