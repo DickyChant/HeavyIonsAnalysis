@@ -14,6 +14,58 @@ def dropPPS(process):
             delattr(process, name)
     return process
 
+# 2016 pPb was reconstructed with prompt conditions only (80X_dataRun2_Prompt_v18).
+# 10_6 cannot run on that GT directly (records added after 80X), so start from the 106X GT and
+# switch every record the PAT step reads back to its 80X prompt tag; geometry and magnetic-field
+# format records stay at 106X. List from the CondDBESSource statistics of a 10_6_50 PAT job.
+promptConditions80X = [
+    ('BTagTrackProbability2DRcd', '', 'TrackProbabilityCalibration_PDF2D_express'),
+    ('BTagTrackProbability3DRcd', '', 'TrackProbabilityCalibration_PDF3D_express'),
+    ('CSCAlignmentErrorExtendedRcd', '', 'CSCAlignmentErrorExtended_6x6_express'),
+    ('CSCAlignmentRcd', '', 'CSCAlignment_2009_v2_express'),
+    ('CSCBadChambersRcd', '', 'CSCBadChambers_RunDependent_prompt'),
+    ('DTAlignmentErrorExtendedRcd', '', 'DTAlignmentErrorExtended_6x6_express'),
+    ('DTAlignmentRcd', '', 'DTAlignment_2009_v1_express'),
+    ('EBAlignmentRcd', '', 'EBAlignment_measured_v01_express'),
+    ('EEAlignmentRcd', '', 'EEAlignment_measured_v02_express'),
+    ('ESAlignmentRcd', '', 'ESAlignment_measured_v01_express'),
+    ('ESChannelStatusRcd', '', 'ESChannelStatus_V01_prompt'),
+    ('ESEEIntercalibConstantsRcd', '', 'ESEEIntercalibConstants_V02_hlt'),
+    ('EcalADCToGeVConstantRcd', '', 'EcalADCToGeVConstant_V1_express'),
+    ('EcalChannelStatusRcd', '', 'EcalChannelStatus_v1_prompt'),
+    ('EcalClusterEnergyCorrectionObjectSpecificParametersRcd', '', 'EcalClusterEnergyCorrectionObjectSpecificParameters_2012_mc'),
+    ('EcalClusterEnergyCorrectionParametersRcd', '', 'EcalClusterEnergyCorrectionParameters_v01_hlt'),
+    ('EcalIntercalibConstantsRcd', '', 'EcalIntercalibConstants_V1_express'),
+    ('EcalLaserAPDPNRatiosRcd', '', 'EcalLaserAPDPNRatios_prompt_v2'),
+    ('EcalLaserAlphasRcd', '', 'EcalLaserAlphas_v2_prompt'),
+    ('GBRDWrapperRcd', 'pfscecal_EBCorrection_offline_v2', 'pfscecal_EBCorrection_offline_v2'),
+    ('GBRDWrapperRcd', 'pfscecal_EBUncertainty_offline_v2', 'pfscecal_EBUncertainty_offline_v2'),
+    ('GBRDWrapperRcd', 'pfscecal_EECorrection_offline_v2', 'pfscecal_EECorrection_offline_v2'),
+    ('GBRDWrapperRcd', 'pfscecal_EEUncertainty_offline_v2', 'pfscecal_EEUncertainty_offline_v2'),
+    ('GlobalPositionRcd', '', 'GlobalAlignment_2009_v2_express'),
+    ('HcalChannelQualityRcd', '', 'HcalChannelQuality_v1.06_hlt'),
+    ('JetCorrectionsRecord', 'AK4PF', 'JetCorrectorParametersCollection_Summer16_07Aug2017All_V11_80X_DATA_AK4PF'),
+    ('JetCorrectionsRecord', 'AK4PFPuppi', 'JetCorrectorParametersCollection_Summer16_07Aug2017All_V11_80X_DATA_AK4PFPuppi'),
+    ('JetCorrectionsRecord', 'AK4PFchs', 'JetCorrectorParametersCollection_Summer16_07Aug2017All_V11_80X_DATA_AK4PFchs'),
+    ('JetCorrectionsRecord', 'AK8PFPuppi', 'JetCorrectorParametersCollection_Summer16_07Aug2017All_V11_80X_DATA_AK8PFPuppi'),
+    ('JetCorrectionsRecord', 'AK8PFchs', 'JetCorrectorParametersCollection_Summer16_07Aug2017All_V11_80X_DATA_AK8PFchs'),
+    ('JetResolutionRcd', 'AK4PFPuppi_phi', 'JR_Summer16_25nsV1_80X_DATA_PhiResolution_AK4PFPuppi'),
+    ('JetResolutionRcd', 'AK4PFPuppi_pt', 'JR_Summer16_25nsV1_80X_DATA_PtResolution_AK4PFPuppi'),
+    ('JetResolutionRcd', 'AK4PFchs_phi', 'JR_Summer16_25nsV1_80X_DATA_PhiResolution_AK4PFchs'),
+    ('JetResolutionRcd', 'AK4PFchs_pt', 'JR_Summer16_25nsV1_80X_DATA_PtResolution_AK4PFchs'),
+    ('JetResolutionScaleFactorRcd', 'AK4PFPuppi', 'JR_Summer16_25nsV1_80X_DATA_SF_AK4PFPuppi'),
+    ('JetResolutionScaleFactorRcd', 'AK4PFchs', 'JR_Summer16_25nsV1_80X_DATA_SF_AK4PFchs'),
+    ('QGLikelihoodRcd', 'QGL_AK4PFchs', 'QGLikelihoodObject_v1_AK4PFchs'),
+    ('TrackerAlignmentErrorExtendedRcd', '', 'TrackerAlignmentExtendedErr_2009_v2_express_IOVs'),
+    ('TrackerAlignmentRcd', '', 'TrackerAlignment_PCL_byRun_v0_express'),
+    ('TrackerSurfaceDeformationRcd', '', 'TrackerSurafceDeformations_v1_express'),
+]
+
+def usePromptConditions(process):
+    for rec, label, tag in promptConditions80X:
+        process.GlobalTag.toGet.append(cms.PSet(record = cms.string(rec), tag = cms.string(tag), label = cms.untracked.string(label)))
+    return process
+
 # store track details for all packed candidates and keep all lost tracks (as run3_upc)
 def storeAllTrackDetails(process):
     process.packedPFCandidates.minPtForChargedHadronProperties = 0.0
@@ -65,9 +117,31 @@ def keepHIContent(process):
         out.outputCommands.extend(hiMiniAODContent)
     return process
 
+# keep only events with >= 1 loose muon or loose electron (AOD collections), e.g. for W+jets / W+c
+def leptonSkim(process, ptMin = 10.0):
+    process.skimLooseMuons = cms.EDFilter("CandViewSelector",
+        src = cms.InputTag("muons"),
+        cut = cms.string("pt > %g && abs(eta) < 2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)" % ptMin))
+    # crude loose electron: H/E and track-cluster matching
+    process.skimLooseElectrons = cms.EDFilter("CandViewSelector",
+        src = cms.InputTag("gedGsfElectrons"),
+        cut = cms.string("pt > %g && abs(superCluster.eta) < 2.5 && hadronicOverEm < 0.15"
+                         " && abs(deltaEtaSuperClusterTrackAtVtx) < 0.02 && abs(deltaPhiSuperClusterTrackAtVtx) < 0.15" % ptMin))
+    process.skimLeptons = cms.EDProducer("CandViewMerger",
+        src = cms.VInputTag("skimLooseMuons", "skimLooseElectrons"))
+    process.skimLeptonFilter = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag("skimLeptons"), minNumber = cms.uint32(1))
+    process.leptonSkimPath = cms.Path(process.skimLooseMuons + process.skimLooseElectrons + process.skimLeptons + process.skimLeptonFilter)
+    if process.schedule is not None:
+        process.schedule.insert(0, process.leptonSkimPath)
+    for out in process.outputModules_().values():
+        out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('leptonSkimPath'))
+    return process
+
 # minimal fixes for 80X pPb AOD -> 10_6 MiniAOD
 def customisePPb2016MiniAOD(process):
     process = dropPPS(process)
+    process = usePromptConditions(process)
     return process
 
 # minimal fixes + UPC-style track content, plain AK4PF jets, HI products
@@ -76,4 +150,10 @@ def customisePPb2016MiniAOD_HI(process):
     process = storeAllTrackDetails(process)
     process = addAK4PFJets(process)
     process = keepHIContent(process)
+    return process
+
+# HI content, only events with a loose lepton above 10 GeV
+def customisePPb2016MiniAOD_LeptonSkim(process):
+    process = customisePPb2016MiniAOD_HI(process)
+    process = leptonSkim(process, ptMin = 10.0)
     return process
