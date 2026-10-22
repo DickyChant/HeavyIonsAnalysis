@@ -103,23 +103,22 @@ process.forest = cms.Path(
 
 #########################
 # Jets: reclustered from packedPFCandidates, b-tagging incl. UParT
+# pPb 2016 was reconstructed with standard pp reconstruction, so use the ppRef settings (AK CHS, pp UParT v2)
 #########################
-process.load('HeavyIonsAnalysis.JetAnalysis.akCs4PFJetSequence_pponPbPb_data_cff')
+process.load("HeavyIonsAnalysis.JetAnalysis.ak4PFJetSequence_ppref_data_cff")
 
 jetPtMin = 15
 jetAbsEtaMax = 2.5
 doHIJetID = True
 doWTARecluster = True
 
-# R=0.3 as in Run3_2026_PbPb: the R=0.4 "Alt" UParT model (UParTAK4_PbPb_2023.onnx) is not in Configuration/data
-for jetR in [0.3]:
+for jetR in [0.4]:
     R = str(int(jetR*10))
-    from HeavyIonsAnalysis.JetAnalysis.deepNtupleSettings_cff import candidateBtaggingMiniAOD
-    # FIXME: candidateBtaggingMiniAOD only accepts PbPb eras; the PbPb label is a stand-in for pPb
-    candidateBtaggingMiniAOD(process, isMC = False, jetPtMin = jetPtMin, jetR = jetR, jetCorrLevels = ['L2Relative', 'L3Absolute'], doFlow = False, addNegTag = False, era = "Run3_2025_PbPb")
-    jL = f"Cs{R}"
-    setattr(process,f'ak{jL}PFJetAnalyzer', process.akCs4PFJetAnalyzer.clone())
-    getattr(process,f'ak{jL}PFJetAnalyzer').jetTag = f'selectedUpdatedPatJetsAK{jL}DeepFlavour'
+    from HeavyIonsAnalysis.JetAnalysis.deepNtupleSettings_ppRef_cff import candidateBtaggingMiniAOD
+    candidateBtaggingMiniAOD(process, isMC = False, jetPtMin = jetPtMin, jetR = jetR)
+    jL = f"{R}"
+    setattr(process,f'ak{jL}PFJetAnalyzer', process.ak4PFJetAnalyzer.clone())
+    getattr(process,f'ak{jL}PFJetAnalyzer').jetTag = f'selectedUpdatedPatJetsAK{R}PFJetsCHSDeepFlavour'
     getattr(process,f'ak{jL}PFJetAnalyzer').jetName = f'ak{jL}PF'
     getattr(process,f'ak{jL}PFJetAnalyzer').rParam = jetR
     getattr(process,f'ak{jL}PFJetAnalyzer').doHiJetID = doHIJetID
@@ -128,11 +127,13 @@ for jetR in [0.3]:
     getattr(process,f'ak{jL}PFJetAnalyzer').useRawPt = True
     getattr(process,f'ak{jL}PFJetAnalyzer').jetAbsEtaMax = cms.untracked.double(jetAbsEtaMax)
     getattr(process,f'ak{jL}PFJetAnalyzer').hltTrgResults = cms.untracked.string('TriggerResults::HLT')
-    getattr(process,f'ak{jL}PFJetAnalyzer').pfJetProbabilityBJetTag = cms.untracked.string(f"pfJetProbabilityBJetTagsAK{jL}DeepFlavour")
-    getattr(process,f'ak{jL}PFJetAnalyzer').pfDeepCSVJetTags = cms.untracked.string(f"pfDeepCSVJetTagsAK{jL}DeepFlavour")
-    getattr(process,f'ak{jL}PFJetAnalyzer').pfDeepFlavourJetTags = cms.untracked.string(f"pfDeepFlavourJetTagsAK{jL}DeepFlavour")
-    getattr(process,f'ak{jL}PFJetAnalyzer').pfParticleTransformerAK4JetTags = cms.untracked.string(f"pfParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
-    getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{jL}DeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfJetProbabilityBJetTag = cms.untracked.string(f"pfJetProbabilityBJetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeOnlyJetProbabilityBJetTag = cms.untracked.string(f"pfNegativeOnlyJetProbabilityBJetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfDeepCSVJetTags = cms.untracked.string(f"pfDeepCSVJetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfDeepFlavourJetTags = cms.untracked.string(f"pfDeepFlavourJetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfParticleTransformerAK4JetTags = cms.untracked.string(f"pfParticleTransformerAK4JetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfUnifiedParticleTransformerAK4JetTagsAK{R}PFJetsCHSDeepFlavour")
+    getattr(process,f'ak{jL}PFJetAnalyzer').pfNegativeUnifiedParticleTransformerAK4JetTags = cms.untracked.string(f"pfNegativeUnifiedParticleTransformerAK4JetTagsAK{R}PFJetsCHSDeepFlavour")
     process.forest += getattr(process,f'ak{jL}PFJetAnalyzer')
 
 process.pAna = cms.EndPath(process.skimanalysis)
