@@ -8,7 +8,7 @@ from CRABClient.UserUtilities import config
 
 config = config()
 
-config.General.requestName = 'pPb2016_PAEGJet1_PARun2016C_MiniAOD106X_EGSkim'
+config.General.requestName = 'pPb2016_PAEGJet1_PARun2016C_MiniAOD106X_EGSkim_CERN'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 
@@ -23,8 +23,11 @@ config.Data.lumiMask = 'Cert_HI8TeV_pPb_Pbp_Collisions16_NoL1T.json'
 # events per lumi vary a lot; let CRAB size the jobs (target runtime in minutes)
 config.Data.splitting = 'Automatic'
 config.Data.unitsPerJob = 480
-config.Data.outLFNDirBase = '/store/user/sqian/pPb2016_MiniAOD106X'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/sqian/pPb2016_MiniAOD106X'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'PARun2016C-PromptReco-v1_MiniAOD106X_EGSkim'
+config.Data.outputDatasetTag = 'PARun2016C-PromptReco-v1_MiniAOD106X_EGSkim_v2'
 
-config.Site.storageSite = 'T2_CN_Beijing'
+# v1 (Oct 2026) went to T2_CN_Beijing, which became unreachable; v2 is the same skim written to CERN
+config.Site.storageSite = 'T2_CH_CERN'
+# v1 jobs crashed (segfaults) at T2_EE_Estonia only
+config.Site.blacklist = ['T2_EE_Estonia']
