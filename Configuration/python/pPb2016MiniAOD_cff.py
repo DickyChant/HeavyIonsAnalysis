@@ -117,21 +117,26 @@ def keepHIContent(process):
         out.outputCommands.extend(hiMiniAODContent)
     return process
 
-# keep only events with >= 1 loose muon or loose electron (AOD collections), e.g. for W+jets / W+c
-def leptonSkim(process, ptMin = 10.0):
+# keep only events with >= 1 loose muon (or loose electron) from the AOD collections, offline selection only
+# elePtMin = None: muons only
+def leptonSkim(process, muPtMin = 15.0, elePtMin = None):
     process.skimLooseMuons = cms.EDFilter("CandViewSelector",
         src = cms.InputTag("muons"),
-        cut = cms.string("pt > %g && abs(eta) < 2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)" % ptMin))
-    # crude loose electron: H/E and track-cluster matching
-    process.skimLooseElectrons = cms.EDFilter("CandViewSelector",
-        src = cms.InputTag("gedGsfElectrons"),
-        cut = cms.string("pt > %g && abs(superCluster.eta) < 2.5 && hadronicOverEm < 0.15"
-                         " && abs(deltaEtaSuperClusterTrackAtVtx) < 0.02 && abs(deltaPhiSuperClusterTrackAtVtx) < 0.15" % ptMin))
-    process.skimLeptons = cms.EDProducer("CandViewMerger",
-        src = cms.VInputTag("skimLooseMuons", "skimLooseElectrons"))
+        cut = cms.string("pt > %g && abs(eta) < 2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)" % muPtMin))
+    skimSeq = process.skimLooseMuons
+    leptons = ["skimLooseMuons"]
+    if elePtMin is not None:
+        # crude loose electron: H/E and track-cluster matching
+        process.skimLooseElectrons = cms.EDFilter("CandViewSelector",
+            src = cms.InputTag("gedGsfElectrons"),
+            cut = cms.string("pt > %g && abs(superCluster.eta) < 2.5 && hadronicOverEm < 0.15"
+                             " && abs(deltaEtaSuperClusterTrackAtVtx) < 0.02 && abs(deltaPhiSuperClusterTrackAtVtx) < 0.15" % elePtMin))
+        skimSeq += process.skimLooseElectrons
+        leptons.append("skimLooseElectrons")
+    process.skimLeptons = cms.EDProducer("CandViewMerger", src = cms.VInputTag(*leptons))
     process.skimLeptonFilter = cms.EDFilter("CandViewCountFilter",
         src = cms.InputTag("skimLeptons"), minNumber = cms.uint32(1))
-    process.leptonSkimPath = cms.Path(process.skimLooseMuons + process.skimLooseElectrons + process.skimLeptons + process.skimLeptonFilter)
+    process.leptonSkimPath = cms.Path(skimSeq + process.skimLeptons + process.skimLeptonFilter)
     if process.schedule is not None:
         process.schedule.insert(0, process.leptonSkimPath)
     for out in process.outputModules_().values():
@@ -152,8 +157,14 @@ def customisePPb2016MiniAOD_HI(process):
     process = keepHIContent(process)
     return process
 
-# HI content, only events with a loose lepton above 10 GeV
-def customisePPb2016MiniAOD_LeptonSkim(process):
+# HI content, only events with a loose muon above 15 GeV (PASingleMuon, W -> mu nu)
+def customisePPb2016MiniAOD_MuonSkim(process):
     process = customisePPb2016MiniAOD_HI(process)
-    process = leptonSkim(process, ptMin = 10.0)
+    process = leptonSkim(process, muPtMin = 15.0)
+    return process
+
+# HI content, only events with a loose muon above 15 GeV or a loose electron above 25 GeV (PAEGJet1, W -> e nu)
+def customisePPb2016MiniAOD_EGSkim(process):
+    process = customisePPb2016MiniAOD_HI(process)
+    process = leptonSkim(process, muPtMin = 15.0, elePtMin = 25.0)
     return process
