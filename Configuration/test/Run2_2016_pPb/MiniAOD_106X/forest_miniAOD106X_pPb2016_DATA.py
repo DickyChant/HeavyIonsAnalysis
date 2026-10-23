@@ -53,6 +53,8 @@ process.TFileService = cms.Service("TFileService",
 
 # event analysis
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cfi')
+# store all HLT paths (e.g. HLT_PAL3Mu12_v1, HLT_PAEle20_WPLoose_Gsf_v1)
+process.hltanalysis.addAllPaths = True
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.skimanalysis_cfi')
 # no pPb centrality table / event plane / HF filters in the 2016 pPb MiniAOD
@@ -65,7 +67,9 @@ process.hiEvtAnalyzer.doHFfilters = False
 process.metFilters = process.skimanalysis.clone(hltresults = "TriggerResults::PAT")
 
 process.load('HeavyIonsAnalysis.EventAnalysis.particleFlowAnalyser_cfi')
+# all PF candidates are stored: raw PF MET can be computed from pftree (no MET analyzer in HeavyIonsAnalysis)
 process.particleFlowAnalyser.ptMin = 0.0
+process.particleFlowAnalyser.absEtaMax = 5.5  # keep all of HF (|eta| < 5.2)
 
 ################################
 # electrons, photons, muons
