@@ -28,7 +28,7 @@ config.Data.outLFNDirBase = '/store/group/phys_heavyions/sqian/pPb2016_MiniAOD10
 config.Data.publication = True
 config.Data.outputDatasetTag = 'PARun2016C-PromptReco-v1_MiniAOD106X_MuonSkim_v2'
 
-# v1 (Oct 2026) went to T2_CN_Beijing, which became unreachable; v2 is the same skim written to CERN
+# v1 (Oct 2026) went to T2_CN_Beijing (stage-out problems); v2 is the same skim written to CERN
 config.Site.storageSite = 'T2_CH_CERN'
 # v1 jobs crashed (segfaults) at T2_EE_Estonia only
 config.Site.blacklist = ['T2_EE_Estonia']

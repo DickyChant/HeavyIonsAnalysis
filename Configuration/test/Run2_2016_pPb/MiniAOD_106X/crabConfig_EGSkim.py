@@ -8,7 +8,7 @@ from CRABClient.UserUtilities import config
 
 config = config()
 
-config.General.requestName = 'pPb2016_PAEGJet1_PARun2016C_MiniAOD106X_EGSkim_CERN'
+config.General.requestName = 'pPb2016_PAEGJet1_PARun2016C_MiniAOD106X_EGSkim_CERN_v2b'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 
@@ -27,7 +27,8 @@ config.Data.outLFNDirBase = '/store/group/phys_heavyions/sqian/pPb2016_MiniAOD10
 config.Data.publication = True
 config.Data.outputDatasetTag = 'PARun2016C-PromptReco-v1_MiniAOD106X_EGSkim_v2'
 
-# v1 (Oct 2026) went to T2_CN_Beijing, which became unreachable; v2 is the same skim written to CERN
+# v1 (Oct 2026) went to T2_CN_Beijing (many stage-out failures); v2 is the same skim written to CERN
+# v2b: resubmission of v2 (v2 never got past its probe jobs: schedd MAX_JOBS_PER_OWNER)
 config.Site.storageSite = 'T2_CH_CERN'
-# v1 jobs crashed (segfaults) at T2_EE_Estonia only
-config.Site.blacklist = ['T2_EE_Estonia']
+# v1 jobs crashed (segfaults) only at T2_EE_Estonia and T2_FR_GRIF
+config.Site.blacklist = ['T2_EE_Estonia', 'T2_FR_GRIF']
