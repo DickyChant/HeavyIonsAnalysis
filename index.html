@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pPb 2016 plots</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --line: #d1d9e0; --accent: #b2182b; --card: #f6f8fa; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9198a1; --line: #30363d; --accent: #ff7b72; --card: #161b22; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; } h2 { font-size: 21px; margin: 36px 0 4px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  p, li { color: var(--muted); } a { color: inherit; }
+  .note { border-left: 3px solid var(--accent); padding: 6px 12px; background: var(--card); color: var(--fg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+  figure img { width: 100%; height: auto; display: block; background: #fff; border-radius: 3px; }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .wide img { width: 100%; }
+  details { margin-top: 12px; } summary { cursor: pointer; }
+  .fits img { width: 100%; margin: 6px 0 18px; background: #fff; }
+</style>
+</head>
+<body>
+<main>
+<h1>pPb 2016 (8.16 TeV): plots</h1>
+<p>Plots for <a href="https://github.com/DickyChant/HeavyIonsAnalysis/issues/1">DickyChant/HeavyIonsAnalysis#1</a>: CMSSW 10_6 MiniAOD made from the 80X PromptReco AOD, then HiForest and HINPPB NanoAOD in 16_1_3. The code is on the <code>pPb2016_miniAOD_106X</code> branch.</p>
+<p class="note">CMS private work, made from partial skims as basic sanity checks. Not results.</p>
+
+<h2 id="2026-10-24">2026-10-24: Z peaks and tag-and-probe</h2>
+<p>Muon POG Tight ID; EGM cut-based Summer16-80X-V1 and Fall17-94X-V2 electron IDs. Isolation uses the standard correction (no pPb event-activity correction yet). Fits: double-sided Crystal Ball + exponential, binned likelihood.</p>
+
+<h3>Z peaks</h3>
+<div class="grid">
+  <figure><a href="2026-10-24/zpeak_mu.png"><img src="2026-10-24/zpeak_mu.png" alt="Z to mumu peak"></a>
+    <figcaption>Z→μμ, 177/302 v1 muon skim jobs. <a href="2026-10-24/interactive/zpeak_mu.html">Interactive</a></figcaption></figure>
+  <figure><a href="2026-10-24/zpeak_ee.png"><img src="2026-10-24/zpeak_ee.png" alt="Z to ee peak"></a>
+    <figcaption>Z→ee, 200 of 1719 v1 EG skim files. <a href="2026-10-24/interactive/zpeak_ee.html">Interactive</a></figcaption></figure>
+</div>
+
+<h3>Tag-and-probe efficiencies</h3>
+<p>Tag: tight, isolated lepton with p<sub>T</sub> &gt; 25 GeV, matched to the HLT_PAL3Mu12 / HLT_PAEle20_WPLoose_Gsf trigger object. Markers: fits; dashes: same-sign-subtracted counting.</p>
+<figure class="wide"><a href="2026-10-24/tnp_eff_mu.png"><img src="2026-10-24/tnp_eff_mu.png" alt="Muon efficiencies"></a>
+  <figcaption>Muons: Tight ID, PF relIso04 &lt; 0.15, HLT_PAL3Mu12 (510 of 516 files of the CERN muon skim). Interactive: <a href="2026-10-24/interactive/tnp_eff_mu_pt.html">vs p<sub>T</sub></a>, <a href="2026-10-24/interactive/tnp_eff_mu_eta.html">vs |η|</a></figcaption></figure>
+<figure class="wide" style="margin-top:16px"><a href="2026-10-24/tnp_eff_ee.png"><img src="2026-10-24/tnp_eff_ee.png" alt="Electron efficiencies"></a>
+  <figcaption>Electrons: Summer16-80X-V1 and Fall17-94X-V2 medium ID, HLT_PAEle20 (v1 EG skim, 1712/2403 jobs). Interactive: <a href="2026-10-24/interactive/tnp_eff_ee_pt.html">vs p<sub>T</sub></a>, <a href="2026-10-24/interactive/tnp_eff_ee_eta.html">vs |η<sub>SC</sub>|</a></figcaption></figure>
+
+<details class="fits"><summary>Fit canvases (passing probes on top, failing below, per probe-p<sub>T</sub> bin)</summary>
+  <h3>Muon Tight ID</h3><img src="2026-10-24/tnp_fits_mu_ID.png" alt="">
+  <h3>Muon isolation</h3><img src="2026-10-24/tnp_fits_mu_ISO.png" alt="">
+  <h3>HLT_PAL3Mu12</h3><img src="2026-10-24/tnp_fits_mu_TRIG.png" alt="">
+  <h3>Electron Summer16-80X-V1 medium</h3><img src="2026-10-24/tnp_fits_ee_ID.png" alt="">
+  <h3>Electron Fall17-94X-V2 medium</h3><img src="2026-10-24/tnp_fits_ee_IDF17.png" alt="">
+  <h3>HLT_PAEle20_WPLoose_Gsf</h3><img src="2026-10-24/tnp_fits_ee_TRIG.png" alt="">
+</details>
+</main>
+</body>
+</html>
