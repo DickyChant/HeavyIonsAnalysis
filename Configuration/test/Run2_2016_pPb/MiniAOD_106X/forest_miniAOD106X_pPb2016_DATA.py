@@ -90,6 +90,8 @@ process.load("HeavyIonsAnalysis.TrackAnalysis.TrackAnalyzers_cff")
 # HI rho propagated from the AOD (process RECO)
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 process.hiFJRhoAnalyzer.etaMap = cms.InputTag('hiFJRhoProducer','mapEtaEdges')
+# finer-binned rho recomputed from packedPFCandidates, with the empty-area correction
+# (rhoSequence -> hiFJRhoAnalyzerFinerBins), for the PbPb-style isolation correction
 
 ###############################################################################
 # main forest sequence
@@ -100,6 +102,7 @@ process.forest = cms.Path(
     process.trackSequencePP +
     process.particleFlowAnalyser +
     process.hiFJRhoAnalyzer +
+    process.rhoSequence +
     process.muonSequencePP +
     process.ggHiNtuplizer +
     process.metFilters
